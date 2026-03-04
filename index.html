@@ -17,26 +17,71 @@
     gtag('config', 'AW-17985849198');
 
     (function () {
-      // WhatsApp com mensagem
-      const whatsappUrl =
-        "https://wa.me/5531991065666?text=Sou%20a%20psic%C3%B3loga%20Laila%20Barros,%20como%20posso%20lhe%20ajudar%3F";
+      const phone = "5531991065666";
+      const text  = "Sou a psicóloga Laila Barros, como posso lhe ajudar?";
 
-      // Dispara a conversão e redireciona no callback
-      gtag('event', 'conversion', {
-        'send_to': 'AW-17985849198/4IZrCK_a34IcE060qYBD',
-        'event_callback': function () {
-          window.location.replace(whatsappUrl);
-        }
+      // 1) Tenta abrir o APP (deep link)
+      const appUrl = "whatsapp://send?phone=" + phone + "&text=" + encodeURIComponent(text);
+
+      // 2) Fallback para web (wa.me)
+      const webUrl = "https://wa.me/" + phone + "?text=" + encodeURIComponent(text);
+
+      // Atualiza o link do botão fallback quando a página carregar
+      window.addEventListener('DOMContentLoaded', function () {
+        const a = document.getElementById('fallback-link');
+        if (a) a.href = webUrl;
       });
 
-      // Fallback: se o callback não rodar, redireciona mesmo assim
-      setTimeout(function () {
-        window.location.replace(whatsappUrl);
-      }, 900);
+      // Dispara conversão e tenta redirecionar
+      function start() {
+        // Dispara a conversão
+        gtag('event', 'conversion', {
+          'send_to': 'AW-17985849198/4IZrCK_a34IcE060qYBD'
+        });
+
+        // Tenta abrir o app imediatamente
+        window.location.href = appUrl;
+
+        // Se não abriu (bloqueio/sem app), cai para o link web rapidamente
+        setTimeout(function () {
+          window.location.replace(webUrl);
+        }, 900);
+      }
+
+      start();
     })();
   </script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 24px;
+    }
+    .hint {
+      opacity: 0.8;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border: 1px solid #cfcfcf;
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
 </head>
+
 <body>
-  Abrindo o WhatsApp…
+  <div class="hint">
+    Abrindo o WhatsApp…
+    <div>
+      <a id="fallback-link" class="btn" href="#">
+        Se não abrir, toque aqui
+      </a>
+    </div>
+  </div>
 </body>
 </html>
