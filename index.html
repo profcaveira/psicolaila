@@ -12,63 +12,43 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+
+    // Base tag
     gtag('config', 'AW-17985849198');
 
     (function () {
       const phone = "5531991065666";
-      const text  = "Sou a psicóloga Laila Barros, como posso lhe ajudar?";
-      const encText = encodeURIComponent(text);
+      const text  = "Olá, gostaria de informações sobre a consulta.";
 
-      // Fallback web (bom para qualquer dispositivo)
-      const webUrl = "https://wa.me/" + phone + "?text=" + encText;
+      // 1) Tenta abrir o APP (deep link)
+      const appUrl = "whatsapp://send?phone=" + phone + "&text=" + encodeURIComponent(text);
 
-      // iOS deep link
-      const iosUrl = "whatsapp://send?phone=" + phone + "&text=" + encText;
+      // 2) Fallback para web (wa.me)
+      const webUrl = "https://wa.me/" + phone + "?text=" + encodeURIComponent(text);
 
-      // Android intent (bem mais efetivo para abrir o app direto no Chrome)
-      // Obs: o path "send" funciona para WhatsApp via intent
-      const androidIntent =
-        "intent://send?phone=" + phone + "&text=" + encText +
-        "#Intent;scheme=whatsapp;package=com.whatsapp;end";
-
-      function isAndroid() {
-        return /Android/i.test(navigator.userAgent);
-      }
-
-      function isIOS() {
-        return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-      }
-
-      // Atualiza botão fallback
+      // Atualiza o link do botão fallback quando a página carregar
       window.addEventListener('DOMContentLoaded', function () {
         const a = document.getElementById('fallback-link');
         if (a) a.href = webUrl;
       });
 
-      // Dispara conversão (rápido, sem depender de callback)
-      try {
+      // Dispara conversão e tenta redirecionar
+      function start() {
+        // Dispara a conversão
         gtag('event', 'conversion', {
           'send_to': 'AW-17985849198/4IZrCK_a34IcE060qYBD'
         });
-      } catch (e) {}
 
-      // Estratégia:
-      // 1) tenta abrir o app (Android Intent no Android, whatsapp:// no iOS)
-      // 2) se não abrir em ~900ms, cai para wa.me
-      if (isAndroid()) {
-        window.location.href = androidIntent;
+        // Tenta abrir o app imediatamente
+        window.location.href = appUrl;
+
+        // Se não abriu (bloqueio/sem app), cai para o link web rapidamente
         setTimeout(function () {
           window.location.replace(webUrl);
         }, 900);
-      } else if (isIOS()) {
-        window.location.href = iosUrl;
-        setTimeout(function () {
-          window.location.replace(webUrl);
-        }, 900);
-      } else {
-        // Desktop/outros
-        window.location.replace(webUrl);
       }
+
+      start();
     })();
   </script>
 
@@ -77,7 +57,11 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       margin: 24px;
     }
-    .hint { opacity: 0.8; font-size: 14px; line-height: 1.4; }
+    .hint {
+      opacity: 0.8;
+      font-size: 14px;
+      line-height: 1.4;
+    }
     .btn {
       display: inline-block;
       margin-top: 12px;
@@ -89,6 +73,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="hint">
     Abrindo o WhatsApp…
